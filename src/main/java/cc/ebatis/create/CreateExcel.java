@@ -31,11 +31,8 @@ import cc.ebatis.util.ConvertUtil;
 
 public class CreateExcel<T> {
 	
-	// 创建对象准备生成
 	private HSSFWorkbook info = null;
-	// 设置sheet名称
 	private HSSFSheet sheet = null;
-	// 样式
 	private HSSFCellStyle cellStyle = null;
 	
 	public HSSFWorkbook getHSSFWorkbook() {
@@ -57,54 +54,35 @@ public class CreateExcel<T> {
 	
 	public void create(List<T> list, String sheetName) throws NoEnableExcelMakerException {
 		
-		// 获取一个实体用于获取对象拥有哪些注解
 		Class<? extends Object> class1 = list.get(0).getClass();
-		// 查看该对象是否拥有EnableExcelMaker
 		EnableExcelMaker enableExcelMaker = class1.getAnnotation(EnableExcelMaker.class);
-		// excelTitle注解，也就是表标题
 		ExcelTitle excelTitle;
-		// title文字
 		String title = null;
-		// 属性列表
 		Field[] fields;
-		// 用于存放属性上注解的信息
 		Map<Integer,String[]> map = new HashMap<Integer,String[]>();
-		// 遍历使用
 		Set<Integer> keySet;
-		// 合并行的options
 		List<Integer> mergeNums = new ArrayList<Integer>();
 		
 		if(enableExcelMaker == null) {
-			// 没这个注解不执行，抛错
 			throw new NoEnableExcelMakerException("Can't find @EnableExcelMaker annotation on class");
 		}
-		// 获取类上的的ExcelTitle注解
 		excelTitle = class1.getAnnotation(ExcelTitle.class);
 		
 		if(excelTitle != null) {
-			// 如果有title则保存下来 相反没有就是null
 			title = excelTitle.value();
 		}
 		
-		// 获取所有字段
 		fields = class1.getDeclaredFields();
 		for(Field x : fields) {
 			ExcelField excelField = x.getAnnotation(ExcelField.class);
 			if(excelField == null) {
-				// 没有换下一个属性
 				continue;
 			}
-			// 要生成的列名
 			String name = excelField.name();
-			// 要出现的为位置，0 -> ？
 			int position = excelField.position();
-			// 列宽
 			String width = String.valueOf(excelField.width());
-			// 是否合并
 			String merge = String.valueOf(excelField.merge());
-			// 属性名称
 			String fieldName = x.getName();
-			// 将这些需要的属性存放{生成的列名，属性名，排序方式，是否合并}
 			String[] infos = new String[]{name, fieldName, width, merge};
 			map.put(position, infos);
 			
@@ -115,49 +93,35 @@ public class CreateExcel<T> {
 		}
 
 		
-		// 创建对象准备生成
 		info = new HSSFWorkbook();
-		// 设置sheet名称
 		sheet = info.createSheet(sheetName);
-		// 样式
 		cellStyle = info.createCellStyle();
-		// 设置居中
-		cellStyle.setAlignment(HorizontalAlignment.CENTER); // 居中
-		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER); // 居中
+		cellStyle.setAlignment(HorizontalAlignment.CENTER);
+		cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 		
 
 		int firstLineIndex = 0;
 		
 		if(title != null) {
-			// 如果等于null，说明没有设置title
 			firstLineIndex = 1;
 		}
 		
-		/*这个是生成表头*/
 		HSSFRow createRow = sheet.createRow(firstLineIndex);
 		
-		// 头样式
 		HSSFCellStyle crs = getStyleBold(info);
-		// 行样式
 		HSSFCellStyle cellCrs = getStyle(info);
 		
-		// 获取刚刚从字段中拿到的map
 		keySet = map.keySet();
-		// 用于找到最大列下标
 		int maxCell = -1;
-		// 遍历map拿到最大值，并且将每一个列头进行设置
 		for(Integer x : keySet) {
 			if(x > maxCell) {
 				maxCell = x;
 			}
-			// 拿到列头的名称
 			String string = map.get(x)[0];
 			//sheet.setDefaultColumnStyle(x, cellStyle);
-			// 设置cell内容（表头）
 			HSSFCell createCell = createRow.createCell(x,CellType.STRING);
 			createCell.setCellStyle(crs);
 			createCell.setCellValue(string);
-			// 自动调整列宽
 			String lengthStr = map.get(x)[2];
 			if(!lengthStr.equals("-1")) {
 				sheet.setColumnWidth(x, Integer.parseInt(map.get(x)[2]) * 400);
@@ -165,15 +129,13 @@ public class CreateExcel<T> {
 			
 		}
 		
-		// 如果有title的话，则给表头赋值并且以最大列合并单元格
 		if(firstLineIndex == 1) {
 			HSSFRow titleRow = sheet.createRow(0);
 			titleRow.setHeight((short)666);
 			HSSFCell createCell = titleRow.createCell(0);
 			createCell.setCellType(CellType.STRING);
 			createCell.setCellValue(title);
-			// 合并单元格  
-	        CellRangeAddress cra =new CellRangeAddress(0, 0, 0, maxCell); // 起始行, 终止行, 起始列, 终止列  
+	        CellRangeAddress cra =new CellRangeAddress(0, 0, 0, maxCell);  
 	        sheet.addMergedRegion(cra);
 	        createCell.setCellStyle(getStyleTitle(info));
 		}
@@ -181,7 +143,6 @@ public class CreateExcel<T> {
 		Map<Integer,String> beforeMap = new HashMap<Integer,String>();
 		Map<Integer,Integer> beforeMapMerge = new HashMap<Integer,Integer>();
 		
-		// 初始化对比内容
 		for(Integer x:mergeNums) {
 			beforeMap.put(x, null);
 			beforeMapMerge.put(x, 0);
@@ -189,11 +150,8 @@ public class CreateExcel<T> {
 				
 		
 		for(int i = 0; i < list.size(); i++) {
-			// 循环集合获取对象，准备生成cell
 			T t = list.get(i);
-			// 获取反射对象
 			Class<? extends Object> class2 = t.getClass();
-			// 创建行
 			HSSFRow row = sheet.createRow(i + 1 + firstLineIndex);
 			for(Integer x : keySet) {
 				String string = map.get(x)[1];
@@ -211,7 +169,6 @@ public class CreateExcel<T> {
 				String typeName = invoke.getClass().getTypeName();
 				HSSFCell createCell = row.createCell(x);
 				createCell.setCellStyle(cellCrs);
-				// 写每一个单元格内容
 				switch(typeName) {
 				case "java.lang.String":
 					createCell.setCellType(CellType.STRING);
@@ -256,7 +213,6 @@ public class CreateExcel<T> {
 				String string2 = beforeMap.get(x);
 					
 					String invokStr = String.valueOf(invoke);
-					// 相同合并
 					if(string2 != null && string2.equals(invokStr)) {
 						
 						if(i == list.size() - 1) {
@@ -284,7 +240,7 @@ public class CreateExcel<T> {
 	}
 	
 	/**
-	 * 获取大标题样式
+	 * Get headline style
 	 * @param info
 	 * @return
 	 */
@@ -298,7 +254,7 @@ public class CreateExcel<T> {
 	}
 	
 	/**
-	 * 获取表头样式
+	 * Get header style
 	 * @param info
 	 * @return
 	 */
@@ -311,20 +267,19 @@ public class CreateExcel<T> {
 	}
 	
 	/**
-	 * 获取普通cell样式（居中，边框）
+	 * Get normal cell style (center, border)
 	 * @param info
 	 * @return
 	 */
 	private HSSFCellStyle getStyle(HSSFWorkbook info) {
-		// 头样式
 		HSSFCellStyle crs = info.createCellStyle();
 		crs.setWrapText(true);
-		crs.setBorderBottom(BorderStyle.THIN); //下边框    
-		crs.setBorderLeft(BorderStyle.THIN);//左边框    
-		crs.setBorderTop(BorderStyle.THIN);//上边框    
-		crs.setBorderRight(BorderStyle.THIN);//右边框 
-		crs.setAlignment(HorizontalAlignment.CENTER); // 居中
-		crs.setVerticalAlignment(VerticalAlignment.CENTER); // 居中
+		crs.setBorderBottom(BorderStyle.THIN);
+		crs.setBorderLeft(BorderStyle.THIN);    
+		crs.setBorderTop(BorderStyle.THIN);   
+		crs.setBorderRight(BorderStyle.THIN);
+		crs.setAlignment(HorizontalAlignment.CENTER);
+		crs.setVerticalAlignment(VerticalAlignment.CENTER);
 		return crs;
 	}
 	

@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * 映射注解类
- * @author 杨硕
+ * Mapping annotation class
+ * @author Steve
  *
  */
 @Documented

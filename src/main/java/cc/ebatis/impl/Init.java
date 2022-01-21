@@ -8,8 +8,8 @@ import cc.ebatis.pojo.ActionContext;
 
 /**
  * 
- * 链入口
- * @author 杨硕
+ * Chain entrance
+ * @author Steve
  *
  */
 public class Init<T> {

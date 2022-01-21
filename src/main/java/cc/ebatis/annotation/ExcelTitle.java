@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * 用于设置导入表格的头部标题
- * @author 杨硕
+ * Used to set the header title of the imported table
+ * @author Steve
  *
  */
 @Documented

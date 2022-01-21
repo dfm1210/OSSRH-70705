@@ -14,32 +14,24 @@ import cc.ebatis.emnu.FileType;
 
 public class ActionContext<T> {
 	
-	// 文件
 	private File file;
 	
-	// 流备份
 	private ByteArrayOutputStream byteArrayOutputStream = null;
 	
-	// 表格内数据
 	private List<SheetInfo<T>> sheets = new ArrayList<SheetInfo<T>>();
 	
-	// 文件类型
 	private FileType fileType;
 	
-	// sheet数量
 	private Integer SheetSize;
 	
-	// 文件大小
 	private Integer fileSizeByte;
 	
 	private Class<? extends T> objects;
 	
 	private boolean useSax = false;
 	
-	// 是否去除重复，默认否
 	private boolean distinct = false;
 	
-	// 是否完成链式操作，默认false
 	private boolean result = false;
 
 	public boolean getDistinct() {

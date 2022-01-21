@@ -5,28 +5,27 @@ import java.util.List;
 
 public class SheetInfo<T> {
 	
-	private Integer line;		// 总数据行数
+	private Integer line;
 	
-	private String sheetName;	// sheet名称
+	private String sheetName;
 	
-	private Integer column;		// 列数
+	private Integer column;
 	
-	private Integer correctLine;// 成功解析的数据行数
+	private Integer correctLine;
 	
-	private Integer blankLineSize;	// 空行数量
+	private Integer blankLineSize;
 	
-	private Integer errorLineSize;	// 错误行数量
+	private Integer errorLineSize;
 	
-	private Integer repeatLineSize;	// 重复行数量
+	private Integer repeatLineSize;	
 	
-	// private List<Map<String,String>> info;	// 行信息
 	private List<T> info;
 	
-	private List<Integer> blankLine; 	// 空行的行号
+	private List<Integer> blankLine;
 	
-	private List<Integer> errorLine;	// 有问题的行号
+	private List<Integer> errorLine;
 	
-	private List<Integer> repeatLine;	// 重复的行号
+	private List<Integer> repeatLine;
 	
 	public SheetInfo(){
 		this.line = 0;

@@ -7,8 +7,9 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * 指定生成的excel文件包含的属性和属性名还有位置,已经是否合并,顺序
- * @author 杨硕
+ * Specify the location of the attributes and attribute names contained 
+ * in the generated excel file, whether they have been merged, and the order
+ * @author Steve
  *
  */
 @Documented

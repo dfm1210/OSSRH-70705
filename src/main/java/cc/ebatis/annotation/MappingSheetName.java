@@ -8,8 +8,8 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * 映射注解类,将sheet名称解析到实体中
- * @author 杨硕
+ * Map the annotation class and resolve the sheet name to the entity
+ * @author Steve
  *
  */
 @Documented

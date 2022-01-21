@@ -24,8 +24,8 @@ import cc.ebatis.pojo.SheetInfo;
 import cc.ebatis.util.ReflexObject;
 
 /**
- * 解析excel表格内容
- * @author 杨硕
+ * Analyzing the contents of Excel
+ * @author Steve
  *
  */
 public class AnalysisExcel<T> implements DataHandleAction<T> {
@@ -38,7 +38,6 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 	@Override
 	public void prepare(ActionContext<T> act) {
 		
-		// 判断是否使用sax方式处理文件,如果使用，跳过该链
 		if(act.getUseSax()) {
 			commit(act);
 			return;
@@ -47,7 +46,6 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 		InputStream inputStream = act.getInputStream();
 		
 		Workbook wb = null;
-		// 创建poi对象
 		
 		List<SheetInfo<T>> excelInfo = act.getSheets();
 		
@@ -75,28 +73,20 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 			}
 		}
 		
-		// sheet数量
 		int numberOfSheets = 0;
 		if(wb != null) {
 			numberOfSheets = wb.getNumberOfSheets();
 		}
 		act.setSheetSize(numberOfSheets);
-		// 第一sheet的列数量
 		int firstSheetHeadNum = -1;
 		
 		if(numberOfSheets >= 1){
 			Sheet sheet = wb.getSheetAt(0);
-			// 获取第一行
 			Row row = sheet.getRow(0);
 			int cellNumber = row.getLastCellNum();
 			firstSheetHeadNum = cellNumber;
 			
-			//for(int n=0; n<numberOfSheets; n++){ 暂时不执行该循环
 			for(int n=0; n<0; n++){
-				//Sheet sheet = wb.getSheetAt(n);
-				// 获取第一行
-				//Row row = sheet.getRow(0);
-				
 				int cellNum = 0;
 				if(row != null) {
 					cellNum = row.getLastCellNum();
@@ -107,29 +97,18 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 					int cellType = -1;
 					if(cell != null)
 						cellType = cell.getCellType();
-					// 如果表头中间有空的，则截断
 					if(cellType == -1 || cellType == Cell.CELL_TYPE_BLANK){
 						cellNum = i;
 					}
 				}
 				
-				// 判断每个sheet的列是否一致，不一致则抛出错误
 				if(firstSheetHeadNum == -1){
 					firstSheetHeadNum = cellNum;
 				}
-				/*else if(firstSheetHeadNum != cellNum){
-					try {
-						throw new SheetHeadNotEqualException("Sheets head size not equal!");
-					} catch (SheetHeadNotEqualException e) {
-						e.printStackTrace();
-						rollback(act);
-					}
-				}*/
 				
 			}
 		}
 		
-		// ==========继续进行解析
 		for(int i=0; i<numberOfSheets; i++){
 			Sheet sheet = wb.getSheetAt(i);
 			SheetInfo<T> sheetInfo = new SheetInfo<T>();
@@ -144,11 +123,9 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 			sheetInfo.setLine(sheet.getLastRowNum());
 			sheetInfo.setColumn(firstSheetHeadNum);
 			sheetInfo.setCorrectLine(analysisSheet.size());
-			// 设置错误、空白、重复数量
 			sheetInfo.setBlankLineSize(sheetInfo.getBlankLine().size());
 			sheetInfo.setErrorLineSize(sheetInfo.getErrorLine().size());
 			sheetInfo.setRepeatLineSize(sheetInfo.getRepeatLine().size());
-			// 添加
 			excelInfo.add(sheetInfo);
 		}
 		
@@ -174,45 +151,28 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 	
 	/**
 	 * 
-	 * 解析sheet为row列表
+	 * Parse sheet into row list
 	 * @param sheet
 	 * @return   
 	 * @return List<String>
 	 */
 	@SuppressWarnings("deprecation")
 	List<T> analysisSheet(Sheet sheet,Class<? extends T> object,SheetInfo<T> sheetInfo, boolean distinct){
-		// 信息数据
-		int lastRowNum = sheet.getLastRowNum(); // 一共几行
-		
+		int lastRowNum = sheet.getLastRowNum();
 		List<T> sheetList = new ArrayList<T>();
-		
-		// 获取头信息
 		Row row = sheet.getRow(0);
-		
 		if(row == null) {
-			
 			return null;
-			
 		}
-		
-		int cellNum = row.getLastCellNum(); // 头数量
-		
-		List<String> headStr = new ArrayList<String>();	// 头内容
-		
-		Set<T> distinctSet = new HashSet<T>();	// 去重set
-		
+		int cellNum = row.getLastCellNum();
+		List<String> headStr = new ArrayList<String>();
+		Set<T> distinctSet = new HashSet<T>();
 		for(int i=0; i<cellNum; i++){
 			Cell cell = row.getCell(i);
 			int cellType = -1;
 			if(cell != null) {
 				cellType = cell.getCellType();
 			}
-// 如果表头中间有空的，则截断
-//			if(cellType == -1 || cellType == Cell.CELL_TYPE_BLANK){
-//				cellNum = i;
-//				break;
-//			}
-			
 			switch(cellType){
 			case Cell.CELL_TYPE_BLANK:
 				headStr.add("");
@@ -235,29 +195,17 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 				headStr.add("");
 			}
 		}
-		// 解析cell
-		
 		for(int i=1; i<=lastRowNum; i++){
 			
-			/*
-			 * 替换自动映射
-			 */
-			
-			
-			// Map<String,String> rowMap = new HashMap<String,String>();
-			
-			// 反射对象
 			T t = null;
 			
 			Row row2 = sheet.getRow(i);
 			
-			// 是否物理空行
 			if(row2 == null) {
 				sheetInfo.addBlankLine(i);
 				continue;
 			}
 			
-			// 判断行是否为空
 			boolean rowEmpty = isRowEmpty(row2);
 			
 			if(rowEmpty) {
@@ -265,30 +213,20 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 				continue;
 			}
 			
-			// 遍历长度最大为头长度
 			List<String> analysisRow = analysisRow(row2,cellNum);
-			
-			/*for(int y=0; y<headStr.size(); y++){
-				rowMap.put(headStr.get(y), analysisRow.get(y));
-			}*/
 			
 			t = reflexObject.getReflexObject(object,headStr,analysisRow,sheet.getSheetName(), i + 1);
 			
-			// 如果在反射期间引发错误，该行将做失败处理
 			if(t == null) {
 				sheetInfo.addErrorLine(i + 1);
 				continue;
 			}
 			
 			boolean flag = true;
-			// 在此去重, 如果为true表示去重
 			if(distinct) {
 				boolean add = distinctSet.add(t);
-				// 如果等于false,添加失败，即相等，则不添加进集合，做重复处理
 				if(!add) {
-					// 将重复的记录下来,设置行数
 					sheetInfo.addRepeatLine(i + 1);
-					// 重复不执行后续操作
 					flag = false;
 				}
 			}
@@ -304,7 +242,7 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 	
 
 	/**
-	 * 将每个cell转为字符串保存
+	 * Convert each cell into a string and save it
 	 * @param row
 	 * @param cellNum
 	 * @return
@@ -314,7 +252,7 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 		List<String> cellLi = new ArrayList<String>();
 		for(int y = 0; y < cellNum; y++){
 			Cell cell = row.getCell(y);
-			int cellType = 3; // 默认空白
+			int cellType = 3;
 			if(cell != null)
 				cellType = cell.getCellType();
 			switch(cellType){
@@ -334,12 +272,12 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 					Date date = cell.getDateCellValue();
 					if(dataFormat == 179){
 						Date javaDate = DateUtil.getJavaDate(cell.getNumericCellValue());
-						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy年MM月");
+						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM");
 						String string = simpleDateFormat.format(javaDate);
 						cellLi.add(string);
 					}else if(dataFormat == 58 || dataFormat == 177) {
 						Date javaDate = DateUtil.getJavaDate(cell.getNumericCellValue());
-						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM月dd日");
+						SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd");
 						String string = simpleDateFormat.format(javaDate);
 						cellLi.add(string);
 					}else if(date != null){
@@ -371,7 +309,7 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 	
 	/**
 	 * 
-	 * 判断行是否为空
+	 * Judge whether the line is empty
 	 * @param row
 	 * @return   
 	 * @return boolean

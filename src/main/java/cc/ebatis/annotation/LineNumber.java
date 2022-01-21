@@ -8,8 +8,9 @@ import java.lang.annotation.Target;
 
 /**
  * 
- * 获取当前数据在页面中的行数，放入实体中对应属性
- * @author 杨硕
+ * Get the number of rows of current data in the page 
+ * and put it into the corresponding attribute in the entity
+ * @author Steve
  *
  */
 @Documented

@@ -1,8 +1,8 @@
 package cc.ebatis.exception;
 
 /**
- * 没有表头exception
- * @author Administrator
+ * no head exception
+ * @author Steve
  *
  */
 public class NoHeaderException extends Exception {

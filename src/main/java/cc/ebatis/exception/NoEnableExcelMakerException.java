@@ -1,8 +1,8 @@
 package cc.ebatis.exception;
 
 /**
- * 没有找到实体中的EnableExcelMaker注解
- * @author Administrator
+ * Enableexcelmaker annotation not found in entity
+ * @author Steve
  *
  */
 public class NoEnableExcelMakerException extends Exception {

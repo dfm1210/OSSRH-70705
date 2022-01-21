@@ -1,34 +1,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>io.github.dfm</groupId>
+	<groupId>io.github.dfm1210</groupId>
 	<artifactId>ebatis</artifactId>
 	<version>1.0</version>
 	<packaging>jar</packaging>
-	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
-	</parent>
-	<developers>
-		<developer>
-			<name>dfmfyl</name>
-			<email>2578429908@qq.com</email>
-			<url>https://github.com/dfm1210/ebatis</url>
-		</developer>
-	</developers>
-	<scm>
-		<url> https://github.com/dfm1210/ebatis</url>
-		<connection>https://github.com/dfm1210/ebatis.git</connection>
-		<developerConnection>https://github.com/dfm1210/ebatis</developerConnection>
-	</scm>
-	<licenses>
-		<license>
-			<name>The Apache Software License, Version2.0</name>
-			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
-		</license>
-	</licenses>
+	<name>ebatis</name>
+	<url>https://github.com/dfm1210/ebatis.git</url>
+	<description>ebatis</description>
+
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
@@ -52,18 +32,119 @@
 	</dependencies>
 	<build>
 		<pluginManagement>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-					<skip>true</skip>
-				</configuration>
-			</plugin>
-		</plugins>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<configuration>
+						<source>1.8</source>
+						<target>1.8</target>
+						<skip>true</skip>
+					</configuration>
+				</plugin>
+			</plugins>
 		</pluginManagement>
 	</build>
+	<licenses>
+		<license>
+			<name>The Apache Software License, Version2.0</name>
+			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
+	<scm>
+		<url> https://github.com/dfm1210/ebatis</url>
+		<connection>https://github.com/dfm1210/ebatis.git</connection>
+		<developerConnection>https://github.com/dfm1210/ebatis</developerConnection>
+	</scm>
+	<developers>
+		<developer>
+			<name>dfmfyl</name>
+			<email>2578429908@qq.com</email>
+			<url>https://github.com/dfm1210/ebatis</url>
+		</developer>
+	</developers>
+	<profiles>
+		<profile>
+			<id>disable-javadoc-doclint</id>
+			<activation>
+				<jdk>[1.8,)</jdk>
+			</activation>
+			<properties>
+				<javadoc.opts>-Xdoclint:none</javadoc.opts>
+			</properties>
+		</profile>
+
+		<!-- mvn repository; -->
+		<profile>
+			<id>sonatype-oss-release</id>
+			<build>
+					<plugins>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-source-plugin</artifactId>
+							<version>2.2.1</version>
+							<executions>
+								<execution>
+									<id>attach-sources</id>
+									<goals>
+										<goal>jar-no-fork</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-javadoc-plugin</artifactId>
+							<version>2.9.1</version>
+							<executions>
+								<execution>
+									<id>attach-javadocs</id>
+									<goals>
+										<goal>jar</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.apache.maven.plugins</groupId>
+							<artifactId>maven-gpg-plugin</artifactId>
+							<version>1.5</version>
+							<executions>
+								<execution>
+									<id>sign-artifacts</id>
+									<phase>verify</phase>
+									<goals>
+										<goal>sign</goal>
+									</goals>
+								</execution>
+							</executions>
+						</plugin>
+						<plugin>
+							<groupId>org.sonatype.plugins</groupId>
+							<artifactId>nexus-staging-maven-plugin</artifactId>
+							<version>1.6.7</version>
+							<extensions>true</extensions>
+							<configuration>
+								<serverId>sonatype-nexus-snapshots</serverId>
+								<nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+								<autoReleaseAfterClose>false</autoReleaseAfterClose>
+							</configuration>
+						</plugin>
+					</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<distributionManagement>
+		<snapshotRepository>
+			<id>sonatype-nexus-snapshots</id>
+			<url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+		</snapshotRepository>
+		<repository>
+			<id>sonatype-nexus-staging</id>
+			<url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+		</repository>
+	</distributionManagement>
 
 </project>

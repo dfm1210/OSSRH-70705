@@ -21,17 +21,17 @@ public class CheckFileType {
 	}
 	
 	/** 
-     * 读取文件头 
+     * read file header 
      */  
     private static String getFileHeader(InputStream inputStream) throws IOException {  
-        byte[] b = new byte[28];//这里需要注意的是,每个文件的magic word的长度都不相同,因此需要使用startwith  
+        byte[] b = new byte[28];  
         inputStream.read(b, 0, 28);  
         
         return getByteStr(b);  
     }  
       
     /** 
-     * 判断文件类型 
+     * Judge file type
      */  
     public static FileType getType( ActionContext act) throws IOException {  
         

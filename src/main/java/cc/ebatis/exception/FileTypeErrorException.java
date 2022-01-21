@@ -1,8 +1,8 @@
 package cc.ebatis.exception;
 
 /**
- * 文件类型异常
- * @author 杨硕
+ * File type exception
+ * @author Steve
  *
  */
 public class FileTypeErrorException extends Exception {

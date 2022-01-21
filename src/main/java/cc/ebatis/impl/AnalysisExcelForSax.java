@@ -30,8 +30,8 @@ import cc.ebatis.pojo.SheetInfo;
 import cc.ebatis.util.ReflexObject;
 
 /**
- * 使用sax解析 excel(针对于BigData)
- * @author Administrator
+ * Parsing excel using Sax (for bigdata)
+ * @author Steve
  *
  * @param <T>
  */
@@ -40,14 +40,10 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 	@Override
 	public void prepare(ActionContext<T> act) {
 
-		// 判断是否使用sax方式处理文件,如果不使用，跳过该链
 		if(!act.getUseSax()) {
 			commit(act);
 			return;
 		}
-		
-		// 正式代码开始
-		
 		
 		try {
 			ReflexVO<T> reflexVO = new ReflexVO<T>();
@@ -92,7 +88,6 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		XMLReader parser = fetchSheetParser(sst,reflexVO);
 		
-		// Iterator<InputStream> sheets = r.getSheetsData();
 		
 		XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) r.getSheetsData();
 		
@@ -100,32 +95,21 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		while(sheets.hasNext()) {
 			
-			// System.out.println("Processing new sheet:\n");
 			InputStream sheet = sheets.next();
-			// 将name保存下来 新建sheetInfo对象
 			SheetInfo<T> sheetInfo = new SheetInfo<T>();
-			// 保存名字
 			sheetInfo.setSheetName(sheets.getSheetName());
-			// 设置对象进VO中
 			reflexVO.setSheetInfo(sheetInfo);
-			// sheet数量加一
 			sheetSize++;
 			InputSource sheetSource = new InputSource(sheet);
 			parser.parse(sheetSource);
 			sheet.close();
-			// 在解析完毕一个sheet后，设置列的数量，数量为头的列数
 			sheetInfo.setColumn(reflexVO.getListHeader().size());
-			// 设置错误、空白、重复数量
 			sheetInfo.setBlankLineSize(sheetInfo.getBlankLine().size());
 			sheetInfo.setErrorLineSize(sheetInfo.getErrorLine().size());
 			sheetInfo.setRepeatLineSize(sheetInfo.getRepeatLine().size());
-			// 在解析完毕后，将sheetInfo加入到act中
 			reflexVO.getAct().addSheets(reflexVO.getSheetInfo());
-			// 下一个sheet操作
 		}
-		// 全部解析完毕后，设置sheet数量
 		reflexVO.getAct().setSheetSize(sheetSize);
-		// 设置解析结果为true
 		reflexVO.getAct().setResult(true);
 	}
 
@@ -138,7 +122,6 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		XMLReader parser = fetchSheetParser(sst,reflexVO);
 		
-		// Iterator<InputStream> sheets = r.getSheetsData();
 		
 		XSSFReader.SheetIterator sheets = (XSSFReader.SheetIterator) r.getSheetsData();
 		
@@ -146,32 +129,21 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		while(sheets.hasNext()) {
 			
-			// System.out.println("Processing new sheet:\n");
 			InputStream sheet = sheets.next();
-			// 将name保存下来 新建sheetInfo对象
 			SheetInfo<T> sheetInfo = new SheetInfo<T>();
-			// 保存名字
 			sheetInfo.setSheetName(sheets.getSheetName());
-			// 设置对象进VO中
 			reflexVO.setSheetInfo(sheetInfo);
-			// sheet数量加一
 			sheetSize++;
 			InputSource sheetSource = new InputSource(sheet);
 			parser.parse(sheetSource);
 			sheet.close();
-			// 在解析完毕一个sheet后，设置列的数量，数量为头的列数
 			sheetInfo.setColumn(reflexVO.getListHeader().size());
-			// 设置错误、空白、重复数量
 			sheetInfo.setBlankLineSize(sheetInfo.getBlankLine().size());
 			sheetInfo.setErrorLineSize(sheetInfo.getErrorLine().size());
 			sheetInfo.setRepeatLineSize(sheetInfo.getRepeatLine().size());
-			// 在解析完毕后，将sheetInfo加入到act中
 			reflexVO.getAct().addSheets(reflexVO.getSheetInfo());
-			// 下一个sheet操作
 		}
-		// 全部解析完毕后，设置sheet数量
 		reflexVO.getAct().setSheetSize(sheetSize);
-		// 设置解析结果为true
 		reflexVO.getAct().setResult(true);
 	}
 	
@@ -187,23 +159,17 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 	}
 
 	/**
-	 * 封装了每一条记录信息的对象
-	 * @author Administrator
+	 * An object that encapsulates each piece of recorded information
+	 * @author Steve
 	 *
 	 */
 	private static class ReflexVO<T>{
 		
-		// 存放头信息
 		private List<String> listHeader;
-		// 存放行信息
 		private List<String> rowInfo;
-		// 行数
 		private Integer lineNum;
-		// act引用
 		private ActionContext<T> act;
-		// sheetInfo
 		private SheetInfo<T> sheetInfo;
-		// 去重使用
 		private Set<T> distinctSet;
 		
 		public ReflexVO() {
@@ -258,20 +224,15 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		private String lastContents;
 		private boolean nextIsString;
 		private ReflexVO<T> reflexVO;
-		// 是否去重
 		private boolean distinct;
-		// 列索引
 		private Integer index;
-		// 是否第一行
 		private boolean isFirstLine = true;
 
 		ReflexObject<T> reflexObject = new ReflexObject<T>();
 		
 		private SheetHandler(SharedStringsTable sst, ReflexVO<T> reflexVO) {
 			this.sst = sst;
-			// 将反射信息对象加入
 			this.reflexVO = reflexVO;
-			// 赋值是否去重
 			this.distinct = reflexVO.getAct().getDistinct();
 		}
 		
@@ -281,33 +242,24 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		public void startElement(String uri, String localName, String name,
 				Attributes attributes) throws SAXException{		
-			//System.out.println(i + name + ":开始");
-			// c => cell
 			
-			// 判断行并设置行数
 			if(name.equals("row")) {
-				// 求出当前行（真实的当前行数）
 				int thisLine = Integer.parseInt(attributes.getValue("r"));
-				// 设置实际数据总行数为当前行 - 1（不算表头）
 				reflexVO.getSheetInfo().setLine(thisLine - 1);
-				// 对比当前行和上一行来判断中间手否有空行
-				int range = thisLine - reflexVO.getLineNum() - 1;	// 当前行 - 上一行 - 1 正常应该等于0
+				int range = thisLine - reflexVO.getLineNum() - 1;	
 				if(range > 0) {
 					for(int i = 0; i < range; i++) {
 						reflexVO.getSheetInfo().addBlankLine(reflexVO.getLineNum() + i + 1);
 					}
 				}
 				
-				// 设置当前实际行（包括表头）
 				reflexVO.setLineNum(thisLine);
-				
-				// 如果为表头初始化头列表，否则初始化内容列表，内容列表初始化会替代上次使用的，为全新的
 				if(thisLine == 1) {
 					isFirstLine = false;
 					reflexVO.setListHeader(new ArrayList<String>());
 				}else {
 					if(isFirstLine) {
-						throw new SAXException("No table head！");
+						throw new SAXException("No table head!");
 					}
 					reflexVO.setRowInfo(new ArrayList<String>());
 				}
@@ -316,12 +268,6 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 			if(name.equals("c")) {
 				
 				index = nameToColumn(attributes.getValue("r"));
-				// Print the cell reference
-				//System.out.print(attributes.getValue("r") + " - ");
-				// Figure out if the value is an index in the SST
-				/*
-				 * 日期
-				 */
 				formatIndex = -1;
 		        formatString = null;
 				cellStyleStr = attributes.getValue("s");
@@ -332,23 +278,18 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		            	formatIndex = style.getDataFormat();
 			            formatString = style.getDataFormatString();
 		            }
-		            // 如果格式中有ymd三种字母，表示为日期格式，将他们转换
-		            // System.out.println(formatIndex  + formatString);
 		            if (formatIndex == 14 || formatIndex == 31 || formatIndex == 57 || formatIndex == 176 || formatIndex == 178 || formatIndex == 166) {
 		                formatString = "yyyy-MM-dd";
 		            }else if(formatIndex == 58 || formatIndex == 177){
-		            	formatString = "MM月dd日";
+		            	formatString = "MM-dd";
 		            }else if(formatIndex == 179){
-		            	formatString = "yyyy年MM月";
+		            	formatString = "yyyy-MM";
 		            }else {
 		            	formatString = null;
 		            }
 		            
 		        }
 				
-				/*
-				 * 日期结束
-				 */
 				String cellType = attributes.getValue("t");
 				if(cellType != null && cellType.equals("s")) {
 					nextIsString = true;
@@ -363,17 +304,11 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 		
 		public void endElement(String uri, String localName, String name)
 				throws SAXException {
-			//System.out.println(i + name + ":结束");
-			// Process the last contents as required.
-			// Do now, as characters() may be called more than once
 			if(nextIsString) {
 				int idx = Integer.parseInt(lastContents);
 				lastContents = new XSSFRichTextString(sst.getEntryAt(idx)).toString();
 				nextIsString = false;
 			}
-			
-			// v => contents of a cell
-			// Output after we've seen the string contents
 			
 			if(name.equals("v")) {
 				if(reflexVO.getLineNum() == 1) {
@@ -385,9 +320,6 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 						lh.add(lastContents);
 					}
 				}else {
-					/*
-					 * 日期
-					 */
 					DataFormatter formatter = new DataFormatter();
 		            if (formatString != null) {
 		            	try {
@@ -395,22 +327,15 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 			            	String thisStr = formatter.formatRawCellContents(parseDouble, formatIndex, formatString).trim();
 			                lastContents = thisStr;
 		            	}catch(NumberFormatException e) {
-		            		//e.printStackTrace();
 		            	}
 		                
 		            }
 
-					/*
-					 * 日期
-					 */
-		            
-		            // 将不足的cell补齐为""
 					List<String> ri = reflexVO.getRowInfo();
 					
 					if(ri.size() == index) {
 						ri.add(lastContents);
 					}else {
-						// 算出要循环的次数
 						int allTime = index-ri.size();
 						for(int i=0;i < allTime;i++) {
 							ri.add("");
@@ -418,17 +343,12 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 						ri.add(lastContents);
 					}
 				}
-				//System.out.println("--->:" + lastContents);
 			}
 			
-			// 将数据进行反射，第一行是头，不处理
 			if(name.equals("row") && reflexVO.getLineNum() != 1) {
-				// 将数据反射保存
 				List<String> listHeader = reflexVO.getListHeader();
 				List<String> rowInfo = reflexVO.getRowInfo();
 				boolean isAllEmpty = true;
-				
-				// 补齐之前首先判断list中是否本身就为空
 				for(String x : rowInfo) {
 					if(x != null && !x.trim().equals("")) {
 						isAllEmpty = false;
@@ -436,39 +356,30 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 					}
 				}
 				if(isAllEmpty) {
-					// 重置列索引,直接返回
 					index = 0;
 					SheetInfo<T> sheetInfo = reflexVO.getSheetInfo();
 					sheetInfo.addBlankLine(reflexVO.getLineNum());
 					return;
 				}
 				
-				// 如果内容列表数量小于头列表数量，则补充""（这个是判断是否和头的 长度一致，不一致补""）
 				int range = (rowInfo.size() - listHeader.size()) * -1;
 				if(range > 0) {
 					for(int i = 0; i < range; i++) {
 						rowInfo.add("");
 					}
 				}
-				// 调用反射方法
-//				T obj = null;
 				T obj = (T)reflexObject.getReflexObject(reflexVO.getAct().getObjects(), 
 						listHeader, 
 						rowInfo, 
 						reflexVO.getSheetInfo().getSheetName(), 
 						reflexVO.getLineNum());
 				
-				// 如果反射中未出现问题，保留信息进列表
 				if(obj != null) {
 					boolean flag = true;
-					// 在此处去重,如果为true
 					if(distinct) {
 						boolean add = reflexVO.getDistinctSet().add(obj);
-						// 如果等于false,添加失败，即相等，则不添加进集合，做重复处理
 						if(!add) {
-							// 将重复的记录下来,设置行数
 							reflexVO.getSheetInfo().addRepeatLine(reflexVO.getLineNum());
-							// 重复不执行后续操作
 							flag = false;
 						}
 					}
@@ -485,13 +396,7 @@ public class AnalysisExcelForSax<T> implements DataHandleAction<T>{
 					reflexVO.getSheetInfo().addErrorLine(reflexVO.getLineNum());
 				}
 				
-				// 一行结束，重置列索引
 				index = 0;
-				
-				// 将行信息列表清空
-				
-				// 将行号清空
-				
 				
 			}
 			

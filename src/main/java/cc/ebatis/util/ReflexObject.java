@@ -15,62 +15,48 @@ import cc.ebatis.annotation.Mapping;
 import cc.ebatis.annotation.MappingSheetName;
 
 /**
- * 反射对象工具
+ * Reflection object tool
  * @author Administrator
  *
  * @param <T>
  */
 public class ReflexObject<T> {
 	
-	// 获取实体属性列表
 	private Field[] fields = null;
 	private Class<Mapping> mapping = Mapping.class;
 	private Class<MappingSheetName> mappingSheetName = MappingSheetName.class;
 	private Class<LineNumber> lineNumber = LineNumber.class;
 	
 	/**
-	 * 将cell的信息反射进java bean
-	 * @param class1 反射对象
-	 * @param headStr 头信息
-	 * @param analysisRow 行内容
-	 * @param sheetName sheet名称
-	 * @param lineNum 第几行
+	 * Reflect the cell information into the java bean
+	 * @param class1 
+	 * @param headStr
+	 * @param analysisRow
+	 * @param sheetName
+	 * @param lineNum
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
 	public T getReflexObject(Class<? extends T> class1, List<String> headStr, List<String> analysisRow, String sheetName, int lineNum){
-		/*Object objects = act.getObjects();
-		Class<?> class1 = objects.getClass();*/
-		
-		/*
-		 * 改版代码开始================================================
-		 */
 		
 		Object object = null;
 		
-		// 反射获取所有字段，遍历字段取得它们的注解参数，以map的形式保存下来复用
 		try {
 			
 			Constructor<? extends T> constructor = class1.getConstructor();
 			object = constructor.newInstance();
 			
-			// 获取实体属性列表(只赋值一次)
 			if(fields == null) {
 				fields = class1.getDeclaredFields();
 			}
 			
 			for(Field x : fields) {
-				// 获取当前属性的注解数组，并查看是否有数量
 				Mapping m = x.getAnnotation(mapping);
 				MappingSheetName msn = x.getAnnotation(mappingSheetName);
 				LineNumber ln = x.getAnnotation(lineNumber);
 				
 				if(m != null) {
-					// 字段映射操作
 					boolean mappingOperation = this.mappingOperation(class1, object, x, m, headStr, analysisRow);
-					
-					// 获取注解是否删除null属性
-					// 如果这次映射失败，属性值为null，并且注解标识需要删除该字段为null的信息，则删除
 					if(m.delNull() && !mappingOperation) {
 						return null;
 					}
@@ -78,12 +64,10 @@ public class ReflexObject<T> {
 				}
 				
 				if(msn != null) {
-					// sheet名映射操作
 					this.sheetNameOperation(class1, object, x, sheetName);		
 				}
 				
 				if(ln != null) {
-					// 行数映射操作
 					this.lineNumberOperation(class1, object, x, lineNum);
 				}
 
@@ -104,19 +88,15 @@ public class ReflexObject<T> {
 		}
 		
 		return (T)object;
-		/*
-		 * 改版代码结束================================================
-		 */
 		
 	}
 	
-	/*改版测试方法如下*/
 	
 	/**
-	 * 字段映射操作
-	 * @param object 反射对象
-	 * @param headStr 表头信息
-	 * @param analysisRow 行内容信息
+	 * Field mapping operation
+	 * @param object
+	 * @param headStr
+	 * @param analysisRow
 	 * @throws SecurityException 
 	 * @throws NoSuchMethodException 
 	 * @throws InvocationTargetException 
@@ -125,39 +105,29 @@ public class ReflexObject<T> {
 	 */
 	private boolean mappingOperation(Class<?> class1, Object object, Field field, Mapping mapping, List<String> headStr, List<String> analysisRow) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		
-		// 获取字段名称
 		String fieldName = field.getName();
-		// 获取注解映射属性
 		String title = mapping.key();
-		// 获取注解正则属性
 		String rex = mapping.rex();
-		// 获取注解的截取长度
 		int length = mapping.length();
-		
-		// 拼接方法名
 		String methodName = new StringBuilder()
 				.append("set").append(ConvertUtil.upperCase(fieldName)).toString();
 		
 		String fieldType = field.getType().toString();
 		
 		for(int y=0; y<headStr.size(); y++) {
-			// 当前头标
 			String thisHead = headStr.get(y);
 			if(thisHead != null && title.equals(thisHead) && !thisHead.equals("")){
 				
 				String string = analysisRow.get(y);
-				// 如果大于0说明截取(先做截取操作),并且防止下标超出判断一下够不够
 				if(length > 0 && string.length() > length){
 					string = string.substring(0, length);
 				}
 				
-				// 判断正则是否为空，为空则不处理
 				if(!rex.equals("")) {
 					
 					Pattern compile = Pattern.compile(rex);
 					Matcher matcher = compile.matcher(string);
 					if(!matcher.matches()) {
-						// 如果匹配失败设为null
 						return false;
 					}
 				}
@@ -172,7 +142,7 @@ public class ReflexObject<T> {
 	}
 	
 	/**
-	 * sheet名称映射操作
+	 * Sheet name mapping operation
 	 * @param class1
 	 * @param object
 	 * @param x
@@ -185,10 +155,8 @@ public class ReflexObject<T> {
 	 * @throws IllegalAccessException 
 	 */
 	private void sheetNameOperation(Class<?> class1, Object object, Field field, String sheetName) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
-		// 获取字段名称
 		String fieldName = field.getName();
 
-		// 拼接方法名
 		String methodName = new StringBuilder()
 				.append("set").append(ConvertUtil.upperCase(fieldName)).toString();
 		
@@ -198,7 +166,7 @@ public class ReflexObject<T> {
 	}
 	
 	/**
-	 * 映射行数到实体
+	 * Mapping rows to entities
 	 * @param class1
 	 * @param object
 	 * @param field
@@ -210,10 +178,8 @@ public class ReflexObject<T> {
 	 * @throws IllegalAccessException 
 	 */
 	private void lineNumberOperation(Class<?> class1, Object object, Field field, int lineNum) throws IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException{
-		// 获取字段名称
 		String fieldName = field.getName();
 
-		// 拼接方法名
 		String methodName = new StringBuilder()
 				.append("set").append(ConvertUtil.upperCase(fieldName)).toString();
 		
@@ -223,11 +189,11 @@ public class ReflexObject<T> {
 	}
 	
 	/**
-	 * 根据类型筛选赋值
-	 * @param object 反射对象
-	 * @Param methodName 方法名称
-	 * @param fieldType 属性类型
-	 * @param fieldValue 属性值
+	 * Filter assignments by type
+	 * @param object
+	 * @Param methodName
+	 * @param fieldType
+	 * @param fieldValue
 	 * @throws SecurityException 
 	 * @throws NoSuchMethodException 
 	 * @throws InvocationTargetException 
@@ -246,7 +212,6 @@ public class ReflexObject<T> {
 			try{
 				parse = format.parse(fieldValue);
 			}catch(ParseException e){
-				// 如果异常，比如字段为空或null，设置为null
 				parse = null;
 			}
 			class1.getMethod(methodName, Date.class).invoke(object, parse);
@@ -315,7 +280,6 @@ public class ReflexObject<T> {
 	}
 	
 	/**
-	 * 转为Double类型
 	 * @return
 	 */
 	public Double parseToDouble(String fieldValue) {
@@ -329,62 +293,4 @@ public class ReflexObject<T> {
 		
 		return parseDouble;
 	}
-	
-//	/**
-//	 * 检查重复的对象那个标签包含的多，则留下那个
-//	 * @param iterator
-//	 * @param t
-//	 * @return
-//	 */
-//	public boolean distinctCheck(Iterator<T> iterator, T t) {
-//		boolean bol = false;
-//		int hashCode1 = t.hashCode();
-//		while(iterator.hasNext()) {
-//			T next = iterator.next();
-//			if(next.hashCode() == hashCode1) {
-//				int checkEntityFieldSize = checkEntityFieldSize(next,t);
-//				if(checkEntityFieldSize > 0) {
-//					return true;
-//				}
-//				break;
-//			}
-//		}
-//		
-//		return bol;
-//	}
-//	
-//	/**
-//	 * 检查对比两个对象拥有的属性值，不为空和不为null的数量
-//	 * @param t1 之前存在的
-//	 * @param t2 即将加入的
-//	 * @return
-//	 */
-//	public int checkEntityFieldSize(T t1, T t2) {
-//		Class<? extends Object> class1 = t1.getClass();
-//		Class<? extends Object> class2 = t2.getClass();
-//		int sum = 0;
-//		for(Field f:fields) {
-//			try {
-//				String methodName = "get" + ConvertUtil.upperCase(f.getName());
-//				Object invoke = class1.getMethod(methodName).invoke(t1);
-//				Object invoke2 = class2.getMethod(methodName).invoke(t2);
-//				if(invoke == null && invoke2 != null) {
-//					sum += 1;
-//				}else if(invoke != null && invoke2 == null) {
-//					sum += -1;
-//				}
-//			} catch (NoSuchMethodException e) {
-//				e.printStackTrace();
-//			} catch (SecurityException e) {
-//				e.printStackTrace();
-//			} catch (IllegalAccessException e) {
-//				e.printStackTrace();
-//			} catch (IllegalArgumentException e) {
-//				e.printStackTrace();
-//			} catch (InvocationTargetException e) {
-//				e.printStackTrace();
-//			}
-//		}
-//		return sum;
-//	}
 }

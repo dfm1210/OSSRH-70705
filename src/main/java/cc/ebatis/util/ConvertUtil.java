@@ -8,7 +8,7 @@ package cc.ebatis.util;
 public class ConvertUtil {
 	
 	/**
-	 * 将字符串首字母大写
+	 * Capitalize string initials
 	 * @param str
 	 * @return
 	 */
