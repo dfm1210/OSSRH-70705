@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -34,7 +35,6 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 	
 	private ReflexObject<T> reflexObject = new ReflexObject<T>();
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void prepare(ActionContext<T> act) {
 		
@@ -94,10 +94,10 @@ public class AnalysisExcel<T> implements DataHandleAction<T> {
 				
 				for(int i=0; i<cellNum; i++){
 					Cell cell = row.getCell(i);
-					int cellType = -1;
+					CellType cellType = CellType._NONE;
 					if(cell != null)
-						cellType = cell.getCellType();
-					if(cellType == -1 || cellType == Cell.CELL_TYPE_BLANK){
+						cellType = cell.getCellTypeEnum();
+					if(cellType == CellType._NONE || cellType == CellType.BLANK){
 						cellNum = i;
 					}
 				}
