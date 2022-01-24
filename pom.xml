@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>io.github.dfm1210</groupId>
 	<artifactId>ebatis</artifactId>
-	<version>1.0</version>
+	<version>1.1</version>
 	<packaging>jar</packaging>
 	<name>ebatis</name>
 	<url>https://github.com/dfm1210/ebatis.git</url>
